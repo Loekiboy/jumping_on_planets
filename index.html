@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumping on Planets</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #020017;
+            align-items: center;
+            font-family: sans-serif;
+            background-image: url('images/earth.gif');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            text-align: center;
+            background: transparent;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .astronaut-animation{
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-image: url(images/stand.png);
+        }
+        @keyframes jump-cycle {
+            0% { background-image: url('images/stand.png'); }
+            25% { background-image: url('images/prepare.png'); }
+            50% { background-image: url('images/up.png'); }
+            75% { background-image: url('images/down.png'); }
+            100% { background-image: url('images/stand.png'); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Jumping on Planets</h2>
+        <div class="astronaut-animation"></div>
+    </dotlottie-player>
+    </div>
+</body>
+<script>
+    const astronaut = document.querySelector('.astronaut-animation');
+    let yPos = 0;
+    let velocity = 0;
+    const gravity = -0.1; 
+    const jumpPower = 3; 
+    let isJumping = false;
+
+    function updatePhysics() {
+        if (isJumping) {
+            velocity += gravity;
+            yPos += velocity;
+
+            if (velocity > 0) {
+                astronaut.style.backgroundImage = "url('images/up.png')";
+            } else if (velocity < 0) {
+                astronaut.style.backgroundImage = "url('images/down.png')";
+            }
+
+            if (yPos <= 0) {
+                yPos = 0;
+                velocity = 0;
+                isJumping = false;
+                astronaut.style.backgroundImage = "url('images/stand.png')";
+            }
+        }
+
+        astronaut.style.bottom = (20 + yPos) + "%";
+        requestAnimationFrame(updatePhysics);
+    }
+
+    function startJump() {
+        if (isJumping) return;
+        
+        astronaut.style.backgroundImage = "url('images/prepare.png')";
+        
+        setTimeout(() => {
+            isJumping = true;
+            velocity = jumpPower;
+        }, 200); 
+    }
+
+    updatePhysics();
+    window.addEventListener('mousedown', startJump);
+</script>
+</html>
