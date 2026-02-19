@@ -122,6 +122,18 @@
             75% { background-image: url('images/down.png'); }
             100% { background-image: url('images/stand.png'); }
         }
+
+        @keyframes prepare-shiver {
+            0% { transform: translateX(-50%) scale(1.0, 0.99); }
+            25% { transform: translateX(-50%) scale(1.01, 1.0); }
+            50% { transform: translateX(-50%) scale(1.0, 1.01); }
+            75% { transform: translateX(-50%) scale(0.99, 1.0); }
+            100% { transform: translateX(-50%) scale(1.0, 1.0); }
+        }
+
+        .shivering {
+            animation: prepare-shiver 0.15s infinite;
+        }
     </style>
 </head>
 <body>
@@ -133,23 +145,23 @@
     </div>
     <div class="dock-outer" id="planet-dock">
         <div class="dock-panel">
-            <div class="dock-item" onclick="changePlanet('Mercury')">
+            <div class="dock-item" onmousedown="changePlanet('Mercury'); event.stopPropagation();">
                 <div class="dock-icon" style="font-size:30px">🌑</div>
                 <div class="dock-label">Mercury</div>
             </div>
-            <div class="dock-item" onclick="changePlanet('Venus')">
+            <div class="dock-item" onmousedown="changePlanet('Venus'); event.stopPropagation();">
                 <div class="dock-icon" style="font-size:30px">🌕</div>
                 <div class="dock-label">Venus</div>
             </div>
-            <div class="dock-item" onclick="changePlanet('Earth')">
+            <div class="dock-item" onmousedown="changePlanet('Earth'); event.stopPropagation();">
                 <div class="dock-icon" style="font-size:30px">🌍</div>
                 <div class="dock-label">Earth</div>
             </div>
-            <div class="dock-item" onclick="changePlanet('Moon')">
+            <div class="dock-item" onmousedown="changePlanet('Moon'); event.stopPropagation();">
                 <div class="dock-icon" style="font-size:30px">🌙</div>
                 <div class="dock-label">Moon</div>
             </div>
-            <div class="dock-item" onclick="changePlanet('Jupiter')">
+            <div class="dock-item" onmousedown="changePlanet('Jupiter'); event.stopPropagation();">
                 <div class="dock-icon" style="font-size:30px">🪐</div>
                 <div class="dock-label">Jupiter</div>
             </div>
@@ -159,20 +171,21 @@
 <script>
     const astronaut = document.querySelector('.astronaut-animation');
     const title = document.querySelector('h2');
+    const jumpSound = new Audio('sounds/whee.mp3');
     
     let yPos = 0;
     let velocity = 0;
     let isJumping = false;
 
-    let gravity = -0.1; 
-    let jumpPower = 3; 
+    let gravity = -0.5; 
+    let jumpPower = 5; 
 
     const planetSettings = {
-        'Mercury': { gravity: -0.04, bg: 'images/mercury.gif' },
-        'Venus':   { gravity: -0.09, bg: 'images/venus.gif' },
-        'Earth':   { gravity: -0.1,  bg: 'images/earth.gif' },
-        'Moon':    { gravity: -0.02, bg: 'images/moon.gif' },
-        'Jupiter': { gravity: -0.25, bg: 'images/jupiter.gif' }
+        'Mercury': { gravity: -0.19, bg: 'images/mercury.gif' },
+        'Venus':   { gravity: -0.455, bg: 'images/venus.gif' },
+        'Earth':   { gravity: -0.5,  bg: 'images/earth.gif' },
+        'Moon':    { gravity: -0.083, bg: 'images/moon.gif' },
+        'Jupiter': { gravity: -1.25, bg: 'images/jupiter.gif' }
     };
 
     function changePlanet(name) {
@@ -182,6 +195,9 @@
             document.body.style.backgroundImage = `url('${settings.bg}')`;
             title.innerText = `Jumping on ${name}`;
             console.log(`Switched to ${name}. Gravity is now ${gravity}`);
+            setTimeout(() => {
+                startJump();
+            }, 100);
         }
     }
 
@@ -218,12 +234,27 @@
     function startJump() {
         if (isJumping) return;
         
+        const jumpGravity = gravity; 
+        const jumpDelay = Math.abs(jumpGravity * 1000); 
+
+        console.log("Start prepare met gravity:", jumpGravity);
+
         astronaut.style.backgroundImage = "url('images/prepare.png')";
+        astronaut.classList.add('shivering');
         
         setTimeout(() => {
             isJumping = true;
-            velocity = jumpPower;
-        }, 200); 
+            velocity = jumpPower; 
+            
+            astronaut.classList.remove('shivering');
+
+            let soundSpeed = Math.abs(jumpGravity / -0.5);
+            jumpSound.playbackRate = Math.min(2.0, Math.max(0.3, soundSpeed));
+            jumpSound.currentTime = 0;
+            jumpSound.play();
+
+            astronaut.style.transform = "translateX(-50%) scale(1, 1)";
+        }, jumpDelay); 
     }
 
     updatePhysics();
