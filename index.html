@@ -169,15 +169,72 @@
             z-index: 100;
             white-space: nowrap;
         }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(6, 0, 16, 0.8);
+            border: 1px solid #222;
+            border-radius: 10px;
+            color: white;
+            font-family: sans-serif;
+            z-index: 100;
+            min-width: 250px;
+        }
+
+        .info-item {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .label{
+            color: #aaa;
+            margin-right: 5px;
+        }
+
+        #gravity-value, #max-height {
+            font-weight: bold;
+            color: #00ffcc;
+        }
+
+        .active-planet {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        #gravity-list li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>Jumping on Planets</h2>
+        <div class="info-panel">
+            <div class="height-display" style="padding: 10px;">
+                Jumping height: <span id="max-height-m">0.00</span> m
+            </div>
+            <hr style="border: 0; border-top: 1px solid #444; margin: 0;">
+            <div style="padding: 10px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">Gravity (m/s²)</h3>
+                <ul id="gravity-list" style="list-style: none; padding: 0; margin: 0; font-size: 13px;">
+                    <li id="list-Mercury">Mercury: <span>3.70</span></li>
+                    <li id="list-Venus">Venus: <span>8.87</span></li>
+                    <li id="list-Earth">Earth: <span>9.81</span></li>
+                    <li id="list-Moon">Moon: <span>1.62</span></li>
+                    <li id="list-Mars">Mars: <span>3.71</span></li>
+                    <li id="list-Jupiter">Jupiter: <span>24.79</span></li>
+                    <li id="list-Saturn">Saturn: <span>10.44</span></li>
+                    <li id="list-Iss">ISS: <span>0.01</span></li>
+                    <li id="list-Sun">Sun: <span>274.0</span></li>
+                </ul>
+            </div>
+        </div>
         <div class="astronaut-animation"></div>
-    </dotlottie-player>
-    </div>
     <div class="dock-outer" id="planet-dock">
         <div class="dock-panel">
             <div class="dock-item" onmousedown="changePlanet('Mercury'); event.stopPropagation();">
@@ -240,11 +297,13 @@
 <script>
     const astronaut = document.querySelector('.astronaut-animation');
     const title = document.querySelector('h2');
+    const heightDisplayM = document.getElementById('max-height-m');
     const jumpSound = new Audio('sounds/whee.mp3');
     
     let yPos = 0;
     let velocity = 0;
     let isJumping = false;
+    let maxJumpY = 0;
 
     let gravity = -0.5; 
     let jumpPower = 5; 
@@ -264,20 +323,30 @@
     function changePlanet(name) {
         const settings = planetSettings[name];
         if (settings) {
-            gravity = settings.gravity;
-            document.body.style.backgroundImage = `url('${settings.bg}')`;
-            title.innerText = `Jumping on ${name}`;
-            console.log(`Switched to ${name}. Gravity is now ${gravity}`);
-            setTimeout(() => {
-                startJump();
-            }, 100);
-        }
+                gravity = settings.gravity;
+                document.body.style.backgroundImage = `url('${settings.bg}')`;
+                title.innerText = `Jumping on ${name}`;
+                
+                maxJumpY = 0;
+                heightDisplayM.innerText = "0.00";
+
+                document.querySelectorAll('#gravity-list li').forEach(li => li.classList.remove('active-planet'));
+                const activeLi = document.getElementById(`list-${name}`);
+                if(activeLi) activeLi.classList.add('active-planet');
+
+                setTimeout(() => { startJump(); }, 100);
+            }
     }
 
     function updatePhysics() {
         if (isJumping) {
             velocity += gravity;
             yPos += velocity;
+
+            if (yPos > maxJumpY) {
+                maxJumpY = yPos;
+                heightDisplayM.innerText = (maxJumpY * 0.02225).toFixed(2);
+            }
 
             if (velocity > 0) {
                 astronaut.style.backgroundImage = "url('images/up.png')";
@@ -291,7 +360,6 @@
                 if (isJumping) {
                     isJumping = false;
                     astronaut.style.backgroundImage = "url('images/stand.png')";
-
                     astronaut.style.transform = "translateX(-50%) scale(1.2, 0.8)";
                     setTimeout(() => {
                         astronaut.style.transform = "translateX(-50%) scale(1, 1)";
@@ -332,5 +400,6 @@
 
     updatePhysics();
     window.addEventListener('mousedown', startJump);
+    changePlanet('Earth');
 </script>
 </html>
