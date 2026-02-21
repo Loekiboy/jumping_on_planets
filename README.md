@@ -1,5 +1,5 @@
 # Jumping On Planets
-On this site you can see how hig you could jump on different places in space using a jumping astronaut!
+On this site you can see how high you could jump on different places in space!
 
 Ever wondered how high you could jump on the scorching surface of the Sun or the low-gravity environment of the ISS? This interactive simulation brings planetary physics to life.
 
