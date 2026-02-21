@@ -220,18 +220,9 @@
             </div>
             <hr style="border: 0; border-top: 1px solid #444; margin: 0;">
             <div style="padding: 10px;">
-                <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">Gravity (m/s²)</h3>
-                <ul id="gravity-list" style="list-style: none; padding: 0; margin: 0; font-size: 13px;">
-                    <li id="list-Mercury">Mercury: <span>3.70</span></li>
-                    <li id="list-Venus">Venus: <span>8.87</span></li>
-                    <li id="list-Earth">Earth: <span>9.81</span></li>
-                    <li id="list-Moon">Moon: <span>1.62</span></li>
-                    <li id="list-Mars">Mars: <span>3.71</span></li>
-                    <li id="list-Jupiter">Jupiter: <span>24.79</span></li>
-                    <li id="list-Saturn">Saturn: <span>10.44</span></li>
-                    <li id="list-Iss">ISS: <span>0.01</span></li>
-                    <li id="list-Sun">Sun: <span>274.0</span></li>
-                </ul>
+                <span style="color: #aaa; font-size: 14px;">Gravity:</span> 
+                <span id="current-gravity-val" style="color: #00ffcc; font-weight: bold; font-size: 14px;">9.81</span> 
+                <span style="color: #aaa; font-size: 14px;"> m/s²</span>
             </div>
         </div>
         <div class="astronaut-animation"></div>
@@ -320,22 +311,35 @@
         'Sun':     { gravity: -14, bg: 'images/sun.gif' }
     };
 
+    const realGravityValues = {
+        'Mercury': '3.70',
+        'Venus': '8.87',
+        'Earth': '9.81',
+        'Moon': '1.62',
+        'Mars': '3.71',
+        'Jupiter': '24.79',
+        'Saturn': '10.44',
+        'Iss': '0.01',
+        'Sun': '274.0'
+    };
+
     function changePlanet(name) {
         const settings = planetSettings[name];
         if (settings) {
-                gravity = settings.gravity;
-                document.body.style.backgroundImage = `url('${settings.bg}')`;
-                title.innerText = `Jumping on ${name}`;
-                
-                maxJumpY = 0;
-                heightDisplayM.innerText = "0.00";
+            gravity = settings.gravity;
+            document.body.style.backgroundImage = `url('${settings.bg}')`;
+            title.innerText = `Jumping on ${name}`;
 
-                document.querySelectorAll('#gravity-list li').forEach(li => li.classList.remove('active-planet'));
-                const activeLi = document.getElementById(`list-${name}`);
-                if(activeLi) activeLi.classList.add('active-planet');
+            maxJumpY = 0;
+            heightDisplayM.innerText = "0.00";
 
-                setTimeout(() => { startJump(); }, 100);
+            const gravityValDisplay = document.getElementById('current-gravity-val');
+            if (gravityValDisplay) {
+                gravityValDisplay.innerText = realGravityValues[name];
             }
+
+            setTimeout(() => { startJump(); }, 100);
+        }
     }
 
     function updatePhysics() {
